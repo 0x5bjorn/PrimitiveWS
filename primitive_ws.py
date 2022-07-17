@@ -13,8 +13,9 @@ def init_server():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(SERVER_ADDRESS)
     server_socket.listen(CONN_NUMBER)
+    return server_socket
 
-def handle_request():
+def handle_request(client_connection):
     # Get the client request
     request = client_connection.recv(RECV_BUFFER).decode('utf-8')
     print(request)
@@ -24,13 +25,13 @@ def handle_request():
     client_connection.sendall(response.encode())
 
 def serve():
-    init_server()
+    server_socket = init_server()
 
     print(f'Serving/listening on port {SERVER_PORT} ...')
     while True:
         # Wait for client connections
         client_connection, client_addr = server_socket.accept()
-        handle_request()
+        handle_request(client_connection)
         client_connection.close()
 
 if __name__ == '__main__':
