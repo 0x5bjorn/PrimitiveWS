@@ -1,28 +1,53 @@
 import socket
 
+class PrimitiveWS:
+
+    # Type of addresses (IPv4 addresses)
+    address_family = socket.AF_INET
+    # TCP connection
+    socket_type = socket.SOCK_STREAM
+
+    # Connection number of unaccepted connections
+    # that the system will allow before refusing new connections
+    conn_number = 3
+    # Maximum amount of data to be received at once
+    recv_buffer = 1024
+
+    def __init__(self, server_address):
+        # Create and set up listening socket
+        self.server_socket = socket.socket(
+            self.address_family,
+            self.socket_type
+        )
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket.bind(server_address)
+        self.server_socket.listen(self.conn_number)
+
+    def __del__(self):
+        # Close socket after finishing using webserver
+        self.server_socket.close()
+
+    def serve(self):
+        print(f'Serving/listening on port {SERVER_PORT} ...')
+        while True:
+            # Wait for client connections
+            self.client_connection, client_addr = self.server_socket.accept()
+            self.handle_request()
+            self.client_connection.close()
+
+    def handle_request(self):
+        # Get the client request
+        request = self.client_connection.recv(self.recv_buffer).decode('utf-8')
+        print(request)
+
+        # Send HTTP response
+        response = "Hello, World!\n"
+        self.client_connection.sendall(response.encode())
+
+
 # Define host and port
-SERVER_HOST, SERVER_PORT = '', 8888
+SERVER_ADDRESS = (SERVER_HOST, SERVER_PORT) = ('', 8888)
 
-# Create and set up listening socket
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind((SERVER_HOST, SERVER_PORT))
-server_socket.listen(1)
-
-print(f'Serving/listening HTTP on port {SERVER_PORT} ...')
-
-while True:
-    # Wait for client connections
-    client_connection, client_addr = server_socket.accept()
-
-    # Get the client request
-    request = client_connection.recv(1024).decode('utf-8')
-    print(request)
-
-    # Send HTTP response
-    response = "Hello, World!\n"
-    client_connection.sendall(response.encode())
-    client_connection.close()
-
-# Close socket
-server_socket.close()
+if __name__ == '__main__':
+    web_server = PrimitiveWS(SERVER_ADDRESS)
+    web_server.serve()

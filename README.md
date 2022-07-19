@@ -1,2 +1,2 @@
 # PrimitiveWS
-Basic Web Server built from scratch in Python
+Basic Web Server built in Python
