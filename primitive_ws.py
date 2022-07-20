@@ -1,4 +1,5 @@
 import socket
+import time
 
 class PrimitiveWS:
 
@@ -26,14 +27,20 @@ class PrimitiveWS:
     def __del__(self):
         # Close socket after finishing using webserver
         self.server_socket.close()
+        print("\n", time.asctime(), f"- Server Stops - {SERVER_HOST}:{SERVER_PORT}")
 
     def serve(self):
-        print(f'Serving/listening on port {SERVER_PORT} ...')
+        print(time.asctime(), f"- Serving/listening on port {SERVER_PORT} ...")
         while True:
             # Wait for client connections
             self.client_connection, client_addr = self.server_socket.accept()
             self.handle_request()
             self.client_connection.close()
+
+    def shut(self):
+        # Close socket after finishing using webserver
+        self.server_socket.close()
+        print(time.asctime(), f"Server stops - {SERVER_HOST}:{SERVER_PORT}")
 
     def handle_request(self):
         # Get the client request
@@ -50,4 +57,7 @@ SERVER_ADDRESS = (SERVER_HOST, SERVER_PORT) = ('', 8888)
 
 if __name__ == '__main__':
     web_server = PrimitiveWS(SERVER_ADDRESS)
-    web_server.serve()
+    try:
+        web_server.serve()
+    except KeyboardInterrupt:
+        pass
