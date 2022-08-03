@@ -1,14 +1,14 @@
 import socket
 import time
 
-class PrimitiveWS:
+class PrimServer:
 
     # Type of addresses (IPv4 addresses)
     address_family = socket.AF_INET
     # TCP connection
     socket_type = socket.SOCK_STREAM
 
-    # Connection number of unaccepted connections
+    # Number of unaccepted connections
     # that the system will allow before refusing new connections
     conn_number = 3
     # Maximum amount of data to be received at once
@@ -26,21 +26,23 @@ class PrimitiveWS:
 
     def __del__(self):
         # Close socket after finishing using webserver
-        self.server_socket.close()
-        print("\n", time.asctime(), f"- Server Stops - {SERVER_HOST}:{SERVER_PORT}")
+        if self.server_socket:
+            print("\n" + time.asctime(), f"- Server stops on {self.server_socket.getsockname()}")
+            self.server_socket.close()
+
+    def shutdown(self):
+        # Close socket after finishing using webserver
+        if self.server_socket:
+            print("\n" + time.asctime(), f"- Server stops on {self.server_socket.getsockname()}")
+            self.server_socket.close()
 
     def serve(self):
-        print(time.asctime(), f"- Serving/listening on port {SERVER_PORT} ...")
+        print(time.asctime(), f"- Serving/listening on {self.server_socket.getsockname()}...")
         while True:
             # Wait for client connections
             self.client_connection, client_addr = self.server_socket.accept()
             self.handle_request()
             self.client_connection.close()
-
-    def shut(self):
-        # Close socket after finishing using webserver
-        self.server_socket.close()
-        print(time.asctime(), f"Server stops - {SERVER_HOST}:{SERVER_PORT}")
 
     def handle_request(self):
         # Get the client request
@@ -50,14 +52,3 @@ class PrimitiveWS:
         # Send HTTP response
         response = "Hello, World!\n"
         self.client_connection.sendall(response.encode())
-
-
-# Define host and port
-SERVER_ADDRESS = (SERVER_HOST, SERVER_PORT) = ('', 8888)
-
-if __name__ == '__main__':
-    web_server = PrimitiveWS(SERVER_ADDRESS)
-    try:
-        web_server.serve()
-    except KeyboardInterrupt:
-        pass
