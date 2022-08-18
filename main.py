@@ -2,13 +2,13 @@ import time
 import signal
 
 from primitive_server import PrimServer
-from primitive_client_handler import PrimClientHandler
+from primitive_request_handler import PrimRequestHandler
 
 # Define host and port
 SERVER_ADDRESS = (SERVER_HOST, SERVER_PORT) = ('', 8888)
 
 server = PrimServer()
-client_handler = PrimClientHandler()
+client_handler = PrimRequestHandler()
 
 # Start web server: set up signal handler for SIGINT, SIGTERM signals
 def start():
@@ -19,11 +19,12 @@ def start():
 def stop(signum: int, _):
     signame = signal.Signals(signum).name
     print("\n" + time.asctime(), f"- Received signal {signame}. Shutting down...")
+    client_handler.shutdown()
     server.shutdown()
     exit(0)
 
 if __name__ == '__main__':
     start()
-    server.setup(SERVER_ADDRESS)
-    client_handler.run(server.server_socket)
+    server_socket = server.setup(SERVER_ADDRESS)
+    client_handler.run(server_socket)
 

@@ -30,6 +30,8 @@ class PrimServer:
         self.server_socket.bind(server_address)
         self.server_socket.listen(self.conn_number)
         print(time.asctime(), f"- Serving/listening on {self.server_socket.getsockname()}...")
+        
+        return self.server_socket
 
     def __del__(self):
         # Close socket after finishing using webserver
